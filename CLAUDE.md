@@ -183,6 +183,7 @@ project-root/
         migrations/
     docs/
     tests/
+    examples/
 
 Guidelines:
 - Keep modules small and focused.

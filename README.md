@@ -84,3 +84,88 @@ history = client.get_historical_prices("AAPL", "2026-03-04", "2026-03-11")
 print(latest)
 print(len(history))
 ```
+
+### Completed: Market Data Cache Service (Second Task)
+
+Implemented an in-memory cache layer that sits between the trading engine and `MarketDataClient` to reduce repeated Massive API calls.
+
+Created files:
+
+- `market_data/cache/price_cache.py`
+- `market_data/cache/__init__.py`
+- `market_data/config/price_cache_config.yaml`
+
+Updated files:
+
+- `market_data/__init__.py` (exports `PriceCache`)
+
+### Cache Architecture Implemented
+
+System flow:
+
+`Trading Engine -> PriceCache -> MarketDataClient -> MassiveProvider`
+
+Core design:
+
+- In-memory dictionary cache keyed by symbol.
+- Internal entry stores latest `price` and `cached_at` timestamp.
+- Supports multiple symbols.
+- Uses a lock to keep cache access thread-safe.
+
+`get_price(symbol)` behavior:
+
+- Returns cached value if entry is still fresh.
+- If expired or missing, calls `MarketDataClient.get_latest_price(symbol)`.
+- Refreshes cache and returns updated price.
+- Wraps upstream failures in `PriceCacheError` with clear context.
+
+### Cache Configuration
+
+Config file:
+
+- `market_data/config/price_cache_config.yaml`
+
+Default config:
+
+```yaml
+price_cache:
+	expiry_seconds: 5
+```
+
+Configuration precedence:
+
+1. `PRICE_CACHE_EXPIRY_SECONDS` environment variable (if set)
+2. YAML value `price_cache.expiry_seconds`
+3. Safe default (`5` seconds)
+
+Validation:
+
+- `expiry_seconds` must be a positive integer.
+- Invalid values raise `PriceCacheError` with clear messages.
+
+### Verification Results
+
+Cache behavior was validated with a deterministic smoke test using a fake market data client:
+
+- Repeated call within TTL returned cached price.
+- Call after TTL expiration refreshed from client.
+- API call count confirmed reduced calls:
+	- first call fetches from client
+	- second call hits cache
+	- third call (after TTL) fetches again
+
+Observed sample output:
+
+- `P1 101.0`
+- `P2 101.0`
+- `P3 102.0`
+- `CALLS 2`
+
+### Developer Ergonomics Added
+
+To run example scripts directly from VS Code Run/Debug without import path issues, workspace configs were added:
+
+- `.vscode/settings.json`
+- `.vscode/launch.json`
+
+These set interpreter to `.venv` and apply `PYTHONPATH=${workspaceFolder}` for consistent imports.

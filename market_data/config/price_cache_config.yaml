@@ -1,0 +1,3 @@
+price_cache:
+  # Cache TTL in seconds for latest price entries.
+  expiry_seconds: 5
