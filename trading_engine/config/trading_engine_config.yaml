@@ -1,0 +1,2 @@
+order_manager:
+  enable_short_selling: false

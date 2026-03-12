@@ -169,3 +169,23 @@ To run example scripts directly from VS Code Run/Debug without import path issue
 - `.vscode/launch.json`
 
 These set interpreter to `.venv` and apply `PYTHONPATH=${workspaceFolder}` for consistent imports.
+
+### Trading Engine Demo (Phase 2)
+
+A runnable demo script was added:
+
+- `examples/trading_engine_demo.py`
+
+What it demonstrates:
+
+- place buy and sell market orders
+- immediate execution via `PriceCache`
+- position updates
+- trade history recording
+- PnL retrieval
+
+Run from repository root:
+
+```bash
+PYTHONPATH=. /Users/guanqiren/Code/WealthArena/.venv/bin/python examples/trading_engine_demo.py
+```
