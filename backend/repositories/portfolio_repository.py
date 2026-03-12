@@ -22,3 +22,9 @@ class PortfolioRepository:
 
     def get_portfolio(self, portfolio_id: str) -> dict[str, Any] | None:
         return self._client.select_one("portfolios", filters={"id": f"eq.{portfolio_id}"})
+
+    def get_user_portfolios(self, user_id: str) -> list[dict[str, Any]]:
+        return self._client.select("portfolios", filters={"user_id": f"eq.{user_id}"})
+
+    def delete_portfolio(self, portfolio_id: str) -> None:
+        self._client.delete("portfolios", filters={"id": f"eq.{portfolio_id}"})

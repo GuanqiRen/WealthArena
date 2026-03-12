@@ -19,12 +19,21 @@ class SupabaseRestClient:
 
     def __init__(self, url: str | None = None, key: str | None = None) -> None:
         self._url = (url or os.getenv("SUPABASE_URL") or "").rstrip("/")
-        self._key = key or os.getenv("SUPABASE_KEY") or ""
+        # Server-side PostgREST calls should use the secret key so that
+        # Row Level Security policies are bypassed for trusted backend code.
+        # Falls back through publishable key (new naming) → legacy key names.
+        self._key = (
+            key
+            or os.getenv("SUPABASE_SECRET_KEY")
+            or os.getenv("SUPABASE_PUBLISHABLE_KEY")
+            or os.getenv("SUPABASE_KEY")  # legacy fallback
+            or ""
+        )
 
         if not self._url:
             raise SupabaseError("Missing SUPABASE_URL environment variable.")
         if not self._key:
-            raise SupabaseError("Missing SUPABASE_KEY environment variable.")
+            raise SupabaseError("Missing SUPABASE_SECRET_KEY environment variable.")
 
         self._rest_url = f"{self._url}/rest/v1"
 

@@ -27,7 +27,6 @@ drop table if exists trades cascade;
 drop table if exists orders cascade;
 drop table if exists positions cascade;
 drop table if exists portfolios cascade;
-drop table if exists users cascade;
 """
 
 
@@ -94,7 +93,7 @@ def drop_schema() -> None:
     finally:
         connection.close()
 
-    print("Dropped tables: trades, orders, positions, portfolios, users")
+    print("Dropped tables: trades, orders, positions, portfolios")
 
 
 def main() -> None:
