@@ -9,3 +9,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Credentials and secrets
+.pwd
+.pwd.*

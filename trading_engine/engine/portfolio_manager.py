@@ -11,6 +11,9 @@ class PortfolioManager:
     def __init__(self) -> None:
         self._positions: dict[str, Position] = {}
 
+    def load_positions(self, positions: list[Position]) -> None:
+        self._positions = {position.symbol: position for position in positions}
+
     def get_position_quantity(self, symbol: str) -> int:
         normalized = symbol.strip().upper()
         position = self._positions.get(normalized)

@@ -37,7 +37,7 @@ class OrderManager:
         normalized_qty = self._normalize_quantity(quantity)
 
         return Order(
-            order_id=uuid.uuid4().hex,
+            order_id=str(uuid.uuid4()),
             symbol=normalized_symbol,
             quantity=normalized_qty,
             side=normalized_side,
