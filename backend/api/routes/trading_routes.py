@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends, Query
 
@@ -30,7 +29,7 @@ class OrderResponse(BaseModel):
     quantity: int
     side: str
     status: str
-    timestamp_ms: Optional[int] = None
+    timestamp_ms: int | None = None
 
 
 class TradeResponse(BaseModel):
@@ -40,7 +39,7 @@ class TradeResponse(BaseModel):
     symbol: str
     quantity: int
     execution_price: float
-    timestamp_ms: Optional[int] = None
+    timestamp_ms: int | None = None
 
 
 class PositionResponse(BaseModel):
@@ -55,8 +54,8 @@ class PlaceOrderResponse(BaseModel):
     """Response after placing an order."""
 
     order: OrderResponse
-    trade: Optional[TradeResponse] = None
-    position: Optional[PositionResponse] = None
+    trade: TradeResponse | None = None
+    position: PositionResponse | None = None
     status: str
 
 

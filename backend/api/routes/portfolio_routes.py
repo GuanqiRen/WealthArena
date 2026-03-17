@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, status, Depends
 
@@ -28,7 +27,7 @@ class PortfolioResponse(BaseModel):
     id: str
     user_id: str
     name: str
-    created_at: Optional[str] = None
+    created_at: str | None = None
 
 
 @router.post("", response_model=PortfolioResponse)

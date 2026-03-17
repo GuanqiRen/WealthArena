@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, HTTPException, status
 
@@ -30,9 +29,9 @@ class AuthResponse(BaseModel):
 
     user_id: str
     email: str
-    access_token: Optional[str] = None
+    access_token: str | None = None
     token_type: str = "bearer"
-    expires_in: Optional[int] = None
+    expires_in: int | None = None
 
 
 @router.post("/register", response_model=AuthResponse)
