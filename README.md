@@ -4,6 +4,34 @@
 
 Build a real-time paper trading platform where user can place order with python apis.
 
+## Run Backend API
+
+From the project root:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m uvicorn backend.api.main:app --reload
+```
+
+API will be available at:
+
+- http://localhost:8000
+- http://localhost:8000/docs
+
+## Run Frontend Dashboard
+
+From the project root:
+
+```bash
+cd frontend
+npm install
+cp .env.local.example .env.local
+npm run dev
+```
+
+Frontend will be available at:
+
+- http://localhost:3000
+
 ## Progress Update (March 11, 2026)
 
 ### Completed: Market Data Module (First Task)
