@@ -8,6 +8,7 @@ import PositionsTable from "@/components/PositionsTable";
 import TradesTable from "@/components/TradesTable";
 import { ApiError, getPositions, getTrades, type Position, type Trade } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useWebSocket } from "@/hooks/useWebSocket";
 
 export default function PortfolioDetailPage() {
   const params = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export default function PortfolioDetailPage() {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { livePositions, totalPnl, isConnected, error: wsError } = useWebSocket(portfolioId, token);
 
   useEffect(() => {
     async function load(): Promise<void> {
@@ -54,6 +56,10 @@ export default function PortfolioDetailPage() {
     () => positions.reduce((sum, p) => sum + p.quantity * p.average_price, 0),
     [positions],
   );
+  const liveBySymbol = useMemo(
+    () => Object.fromEntries(livePositions.map((p) => [p.symbol, p])),
+    [livePositions],
+  );
 
   return (
     <main className="page-shell stack">
@@ -71,6 +77,9 @@ export default function PortfolioDetailPage() {
 
       <section className="card" style={{ padding: 16 }}>
         <h2 style={{ marginTop: 0 }}>Portfolio Summary</h2>
+        <p style={{ marginTop: 0, color: isConnected ? "#1f7a1f" : "var(--muted)" }}>
+          Realtime: {isConnected ? "Connected" : "Reconnecting..."}
+        </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
           <div className="card" style={{ padding: 12 }}>
             <div style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Total Positions</div>
@@ -80,15 +89,22 @@ export default function PortfolioDetailPage() {
             <div style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Gross Exposure</div>
             <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>${grossExposure.toFixed(2)}</div>
           </div>
+          <div className="card" style={{ padding: 12 }}>
+            <div style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Live Total PnL</div>
+            <div style={{ fontSize: "1.5rem", fontWeight: 700, color: totalPnl >= 0 ? "#1f7a1f" : "#b42318" }}>
+              {totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)}
+            </div>
+          </div>
         </div>
       </section>
 
       {loading ? <div className="card" style={{ padding: 16 }}>Loading portfolio data...</div> : null}
       {error ? <div className="card error" style={{ padding: 16 }}>{error}</div> : null}
+      {wsError ? <div className="card error" style={{ padding: 16 }}>{wsError}</div> : null}
 
       {!loading && !error ? (
         <>
-          <PositionsTable positions={positions} />
+          <PositionsTable positions={positions} liveBySymbol={liveBySymbol} />
           <TradesTable trades={trades} />
         </>
       ) : null}

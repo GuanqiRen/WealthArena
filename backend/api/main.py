@@ -1,19 +1,30 @@
 """FastAPI application for WealthArena trading platform."""
 
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from market_data.cache.price_cache import PriceCache
 
 from backend.api.routes import auth_routes, portfolio_routes, trading_routes
+from backend.api.websocket import portfolio_ws
 
 # Load environment variables
 load_dotenv()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize shared runtime services."""
+    app.state.price_cache = PriceCache()
+    yield
 
 # Create FastAPI app
 app = FastAPI(
     title="WealthArena API",
     description="REST API for paper trading platform",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # Allow CORS for local development
@@ -29,6 +40,7 @@ app.add_middleware(
 app.include_router(auth_routes.router)
 app.include_router(portfolio_routes.router)
 app.include_router(trading_routes.router)
+app.include_router(portfolio_ws.router)
 
 
 @app.get("/health")
