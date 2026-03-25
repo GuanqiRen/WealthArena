@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import PositionsTable from "@/components/PositionsTable";
@@ -12,7 +12,9 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 
 export default function PortfolioDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const portfolioId = params?.id;
+  const portfolioName = searchParams.get("name");
   const { token } = useAuth();
 
   const [positions, setPositions] = useState<Position[]>([]);
@@ -69,6 +71,7 @@ export default function PortfolioDetailPage() {
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
           <div>
             <h1 style={{ margin: "0 0 8px 0" }}>Portfolio Details</h1>
+            {portfolioName ? <p style={{ margin: "0 0 4px 0", color: "var(--text)" }}>Portfolio Name: {portfolioName}</p> : null}
             <p style={{ margin: 0, color: "var(--muted)" }}>Portfolio ID: {portfolioId}</p>
           </div>
           <Link href="/dashboard" className="btn btn-secondary">Back to Dashboard</Link>

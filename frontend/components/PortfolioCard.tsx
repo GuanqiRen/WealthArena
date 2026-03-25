@@ -7,7 +7,11 @@ type PortfolioCardProps = {
 
 export default function PortfolioCard({ portfolio }: PortfolioCardProps) {
   return (
-    <Link href={`/portfolio/${portfolio.id}`} className="card" style={{ padding: 16, display: "block" }}>
+    <Link
+      href={{ pathname: `/portfolio/${portfolio.id}`, query: { name: portfolio.name } }}
+      className="card"
+      style={{ padding: 16, display: "block" }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div>
           <h3 style={{ margin: "0 0 8px 0" }}>{portfolio.name}</h3>
