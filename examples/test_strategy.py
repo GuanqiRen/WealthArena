@@ -10,7 +10,7 @@ client = TradingClient(
     password=USER_PASSWORD,
 )
 
-client.register(USER_EMAIL, USER_PASSWORD)
+
 client.login()
 client.list_portfolios()
 
@@ -21,3 +21,5 @@ portfolios = client.list_portfolios()
 client.place_order(portfolios[0].id, 'SPY', 10, 'buy')
 
 client.create_portfolio('Strategy_1')
+
+portfolio = client.get_portfolio(portfolios[0].id)

@@ -78,6 +78,39 @@ async def list_portfolios(
         ) from exc
 
 
+@router.get("/{portfolio_id}", response_model=PortfolioResponse)
+async def get_portfolio(
+    portfolio_id: str,
+    user: AuthUser = Depends(get_current_user),
+) -> PortfolioResponse:
+    """Get a single portfolio if it belongs to the current user."""
+    service = PortfolioService()
+
+    try:
+        portfolio = service.get_portfolio(portfolio_id, user.user_id)
+        return PortfolioResponse(
+            id=portfolio["id"],
+            user_id=portfolio["user_id"],
+            name=portfolio["name"],
+            created_at=portfolio.get("created_at"),
+        )
+    except PortfolioNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Portfolio {portfolio_id} not found",
+        )
+    except PortfolioAccessDeniedError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not own this portfolio",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        ) from exc
+
+
 @router.delete("/{portfolio_id}")
 async def delete_portfolio(
     portfolio_id: str,
