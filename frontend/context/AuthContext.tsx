@@ -11,12 +11,19 @@ import {
 } from "react";
 import { clearStoredToken, getStoredToken, storeToken } from "@/lib/auth";
 import { login as apiLogin } from "@/lib/api";
+import {
+  getSupabaseAccessToken,
+  signInWithGoogle,
+  signOutSupabase,
+  subscribeToSupabaseAuthChanges,
+} from "@/lib/supabase_auth";
 
 type AuthContextValue = {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
 };
 
@@ -31,9 +38,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const existing = getStoredToken();
-    setToken(existing);
-    setIsLoading(false);
+    let isMounted = true;
+
+    const initializeAuth = async () => {
+      const existing = getStoredToken();
+      if (existing) {
+        if (isMounted) {
+          setToken(existing);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      const supabaseToken = await getSupabaseAccessToken();
+      if (supabaseToken) {
+        storeToken(supabaseToken);
+      }
+
+      if (isMounted) {
+        setToken(supabaseToken);
+        setIsLoading(false);
+      }
+    };
+
+    void initializeAuth();
+
+    const unsubscribe = subscribeToSupabaseAuthChanges((session) => {
+      const nextToken = session?.access_token ?? null;
+
+      if (nextToken) {
+        storeToken(nextToken);
+      } else {
+        clearStoredToken();
+      }
+
+      setToken(nextToken);
+      setIsLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -42,9 +88,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setToken(response.access_token);
   }, []);
 
+  const loginWithGoogle = useCallback(async () => {
+    await signInWithGoogle();
+  }, []);
+
   const logout = useCallback(() => {
     clearStoredToken();
     setToken(null);
+    void signOutSupabase();
   }, []);
 
   const value = useMemo(
@@ -53,9 +104,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: Boolean(token),
       isLoading,
       login,
+      loginWithGoogle,
       logout,
     }),
-    [token, isLoading, login, logout],
+    [token, isLoading, login, loginWithGoogle, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

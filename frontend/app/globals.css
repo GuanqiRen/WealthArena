@@ -72,6 +72,10 @@ a {
   color: #fff;
   cursor: pointer;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn:hover {
@@ -81,6 +85,21 @@ a {
 .btn-secondary {
   background: var(--surface-muted);
   color: var(--text);
+}
+
+.btn-google {
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 1px solid var(--border);
+}
+
+.btn-google:hover {
+  background: #f8fafc;
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .input {

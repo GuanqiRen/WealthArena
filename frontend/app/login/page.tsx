@@ -4,14 +4,16 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const router = useRouter();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -33,11 +35,30 @@ export default function LoginPage() {
     }
   }
 
+  async function handleGoogleLogin(): Promise<void> {
+    setError(null);
+    setGoogleLoading(true);
+
+    try {
+      await loginWithGoogle();
+    } catch {
+      setGoogleLoading(false);
+      setError("Google sign-in failed. Please try again.");
+    }
+  }
+
   return (
     <main className="page-shell" style={{ display: "grid", placeItems: "center" }}>
       <section className="card" style={{ width: "100%", maxWidth: 420, padding: 20 }}>
         <h1 style={{ marginTop: 0 }}>Login</h1>
         <p style={{ color: "var(--muted)" }}>Sign in to view your portfolios and trading history.</p>
+
+        <div className="stack" style={{ marginBottom: 16 }}>
+          <GoogleSignInButton onClick={handleGoogleLogin} disabled={googleLoading} />
+          <div style={{ color: "var(--muted)", textAlign: "center", fontSize: "0.9rem" }}>
+            or continue with email and password
+          </div>
+        </div>
 
         <form className="stack" onSubmit={handleSubmit}>
           <label>
